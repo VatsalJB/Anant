@@ -127,7 +127,6 @@ int main()
     advbkn_node->func = advbkn;
     
     iterate();
-    //waitpid(-1, NULL, 0);
     //pause();
     while(1)
     {
