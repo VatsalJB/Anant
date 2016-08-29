@@ -1,0 +1,225 @@
+
+
+#wrapper {
+    padding-left: 0;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#wrapper.toggled {
+    padding-left: 150px;/*250*/
+}
+
+#sidebar-wrapper {
+    z-index: 1000;
+    position: fixed;
+    left: 150px;/*250*/
+    width: 0;
+    height: 100%;
+    margin-left: -150px;/*250*/
+    overflow-y: auto;
+    background: #000;
+    margin-top: 55px;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    width: 150px;/*250*/
+}
+
+
+
+#page-content-wrapper {
+    padding-top: 10px;
+    padding-left: 0px;
+    position: relative;
+}
+
+#wrapper.toggled #page-content-wrapper {
+    position: relative;
+    margin-right: 0;
+
+}
+/* Sidebar Styles */
+
+.sidebar-nav {
+    position: absolute;
+    top: 0;
+    width: 150px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sidebar-nav li {
+    text-indent: 20px;
+    line-height: 40px;
+}
+
+.sidebar-nav li a {
+    display: block;
+    text-decoration: none;
+    color: #999999;
+}
+.collapse a{
+  display: none;
+  text-decoration: none;
+  color: #888888;
+  text-indent: 50px;
+}
+
+.sidebar-nav li a:hover {
+    text-decoration: none;
+    color: #000;
+    background: rgba(255,255,255,0.3);
+
+    background-color: grey;
+}
+.sidebar-nav .collapse a:hover {
+    text-decoration: none;
+    color: #000;
+    background-color: grey;
+}
+
+.sidebar-nav > .sidebar-brand{
+    height: 65px;
+    font-size: 14px;
+    font-weight: bolder;
+    line-height: 30px;
+}
+.sidebar-nav{
+  font-size: 12px;
+}
+
+.sidebar-nav > .sidebar-bran a {
+    color: #999999;
+}
+
+.sidebar-nav > .sidebar-brand a:hover {
+    color: #fff;
+    background: none;
+}
+
+
+#indexDis{
+  height:auto;width:auto;
+  background-color:rgba(125,125,125,0.93);
+  top:0;
+  bottom:0;
+  left:0;
+  right:0px;;
+  margin-right:auto;
+  margin-left:00%;
+  margin-top:0%;
+
+
+}
+#wrapper.toggled #indexDis{
+  margin-left:0%;
+}
+#indexDis {
+  font-weight: bolder;
+  font-size: 14px;
+}
+#indexDis h2{
+  color:#c57a3b;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: bolder;
+}
+
+/*for larger screens*/
+@media(min-width:768px) {
+    #wrapper {
+        padding-left: 200px;
+    }
+
+    #wrapper.toggled {
+        padding-left: 0;
+    }
+
+    #sidebar-wrapper {
+        width: 200px;
+
+    }
+
+    #wrapper.toggled #sidebar-wrapper {
+        width: 0;
+    }
+
+    #page-content-wrapper {
+        padding-top: 10px;
+        padding-left: 0px;
+        position: relative;
+    }
+
+    #wrapper.toggled #page-content-wrapper {
+        position: relative;
+        margin-right: 0;
+    }
+    #indexDis{
+      height:auto;width:50%;
+      background-color:rgba(125,125,125,0.93);
+      top:0;
+      bottom:0;
+      left:0;
+      right:0;
+      margin-right:auto;
+      margin-left:25%;
+      margin-top:0%;
+
+    }
+    #wrapper.toggled #indexDis{
+      margin-left:25%;
+    }
+    #indexDis {
+      font-weight: bolder;
+      font-size: 16px;
+    }
+    #indexDis h2{
+      color:#c57a3b;
+      font-family: 'Roboto Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: bolder;
+    }
+
+    .sidebar-nav > .sidebar-brand{
+        height: 65px;
+        font-size: 25px;
+        line-height: 60px;
+        font-weight: 900;
+        width: 200px;
+
+        color: black;
+    }
+    .sidebar-nav li {
+        text-indent: 20px;
+        line-height: 45px;
+        font-size: 15px;
+    }
+    .sidebar-nav {
+        position: absolute;
+        top: 0;
+        width: 200px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .sidebar-nav li a:hover {
+        text-decoration: none;
+        background: rgba(255,255,255,0.3);
+    }
+    .sidebar-nav .collapse a:hover {
+        text-decoration: none;
+        color: #000;
+        background-color: grey;
+    }
+
+
+
+}
