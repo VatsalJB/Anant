@@ -13,7 +13,7 @@ pid_t id;
 
 node *hk_node, *bdot_node, *advbkn_node;
 
-void childterminate()   //nonblocking without the while loop
+void childterminate()   //nonblocking!
 {
     int stat;
     pid_t temp;
