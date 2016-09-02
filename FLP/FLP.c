@@ -33,20 +33,24 @@ void child_terminate()   //nonblocking!
             if(temp==hk_node->id)
             {
                 hk_node->not_running = 1;
+                hk_node->id = 0;
             }
             else if(temp==advbkn_node->id)
             {
                 advbkn_node->not_running = 1;
+                advbkn_node->id = 0;
             }
             else if(temp==bdot_node->id)
             {
                 bdot_node->not_running = 1;
+                bdot_node->id = 0;
             }
         }
         temp = waitpid(-1, &stat, WNOHANG);    
         if(temp==-1)
         {
             perror("Error");
+            printf("\n");
         }
     }
 }
@@ -146,7 +150,7 @@ void iterate(void)
     {
         clock_gettime(CLOCK_MONOTONIC, &ts);
         double time_microsec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
-        if(time_microsec>head->next_time||time_microsec==head->next_time)
+        if((time_microsec>head->next_time||time_microsec==head->next_time)&&head->id==0)
         {
             (*head).func();
             clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -162,6 +166,7 @@ int main()
     struct sigaction handlr_struct;
     handlr_struct.sa_handler = child_terminate;
     handlr_struct.sa_flags = SA_RESTART;
+    sigemptyset(&handlr_struct.sa_mask);
     sigaction(SIGCHLD, &handlr_struct, NULL);
     
     hk_node = (node*) malloc(sizeof(node));
