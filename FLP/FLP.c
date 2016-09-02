@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <sys/time.h>
 
-#define freq 0.1
+#define freq 1000000
 
 typedef struct linked{
 void (*func)(void);
@@ -25,12 +25,11 @@ void child_terminate()   //nonblocking!
     int stat;
     pid_t temp;
     temp = waitpid(-1, &stat, WNOHANG);
-    //printf("%d\n", temp);
    while(temp>0)
     {
         if(WIFEXITED(stat))
         {
-            printf("Dead baby %d\n", temp);      //can switch flags here.
+            printf("Dead baby %d\n", temp);
             if(temp==hk_node->id)
             {
                 hk_node->not_running = 1;
@@ -50,12 +49,11 @@ void child_terminate()   //nonblocking!
             perror("Error");
         }
     }
-    printf("loop exited\n");
 }
 
 void hk(void)
 {
-    printf("HK CALLED\n");
+    hk_node->not_running = 0;
     pid_t id;
     id = fork();
     if(id<0)
@@ -64,10 +62,9 @@ void hk(void)
     }
     else if(id == 0)
     {
-        printf("HK forked and execed with id %d\n", getpid());      //can remove getpid after testing.
+        printf("HK forked and execed with id %d\n", getpid());
         hk_node->id = getpid();
         execv("/home/smr/Anant/Housekeeping/hk", NULL);
-        //end of housekeeping!
     }
     else
     {
@@ -78,13 +75,13 @@ void hk(void)
 void bdot(void)
 {
     //to be added.
-    printf("BDOT CALLED\n");
+    bdot_node->not_running = 0;
     return;
 }
 
 void advbkn(void)
 {
-    printf("ADVBKN CALLED\n");
+    advbkn_node->not_running = 0;
     pid_t id;
     id = fork();
     if(id<0)
@@ -93,11 +90,9 @@ void advbkn(void)
     }
     else if(id == 0)
     {
-        printf("ADVBKN forked and execed %d\n", getpid());      //again, can remove getpid after testing.
+        printf("ADVBKN forked and execed %d\n", getpid());
         advbkn_node->id = getpid();
-       // sleep(0.7);                 //remove this!
         execv("/home/smr/Anant/Transmit/transmitadv", NULL);
-        //end of housekeeping!
     }
     else
     {
@@ -116,7 +111,6 @@ void order_list(node *temp)         //temp will always be head. See iterate func
     {
         second_head = head->next;
         flag = 1;
-        //printf("flag 1\n");
     }
     while(iter!=NULL)
     {
@@ -127,7 +121,6 @@ void order_list(node *temp)         //temp will always be head. See iterate func
                 prv_iter->next = temp;
             if(iter!=head->next&&flag)
             {
-                //printf("head changed\n");
                 head = second_head;
             }
             break;
@@ -141,11 +134,9 @@ void order_list(node *temp)         //temp will always be head. See iterate func
         temp->next = NULL;
         if(flag == 1)
         {
-            //printf("head changed\n");
             head = second_head;
         }
     }
-    //printf("ret\n");
 }
 
 void iterate(void)
@@ -153,13 +144,16 @@ void iterate(void)
     struct timespec ts;
     while(1)
     {
-        //printf("iterate loop\n");
-        printf("head is %f\n", head->next_time);
-        (*head).func();
         clock_gettime(CLOCK_MONOTONIC, &ts);
-        double time_nanosec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
-        head->next_time = time_nanosec+freq;
-        order_list(head);
+        double time_microsec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
+        if(time_microsec>head->next_time||time_microsec==head->next_time)
+        {
+            (*head).func();
+            clock_gettime(CLOCK_MONOTONIC, &ts);
+            time_microsec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
+            head->next_time = time_microsec+freq;
+            order_list(head);
+        }
     }
 }
 
@@ -167,7 +161,7 @@ int main()
 {    
     struct sigaction handlr_struct;
     handlr_struct.sa_handler = child_terminate;
-    handlr_struct.sa_flags = SA_RESTART;// | SA_NOCLDSTOP;
+    handlr_struct.sa_flags = SA_RESTART;
     sigaction(SIGCHLD, &handlr_struct, NULL);
     
     hk_node = (node*) malloc(sizeof(node));
@@ -182,22 +176,16 @@ int main()
     advbkn_node->func = advbkn;    
     head = hk_node;    
      
-    struct timespec ts;         //fix the time initialisation
+    struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    double time_nanosec = (double) ts.tv_sec*1000000 + (double) ts.tv_nsec/1000;
-    printf("time %f\n", time_nanosec);
-    hk_node->next_time = time_nanosec;
+    double time_microsec = (double) ts.tv_sec*1000000 + (double) ts.tv_nsec/1000;
+    printf("time %f\n", time_microsec);
+    hk_node->next_time = time_microsec;
     
-    bdot_node->next_time = time_nanosec+0.3;
-    advbkn_node->next_time = time_nanosec+0.5;
+    bdot_node->next_time = time_microsec+0.3;
+    advbkn_node->next_time = time_microsec+0.5;
     
     iterate();
-    //pause();
-    while(1)
-    {
-        //nothing
-    }
-    printf("bye\n");
     free(hk_node);
     free(bdot_node);
     free(advbkn_node);
