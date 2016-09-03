@@ -66,6 +66,7 @@ void hk(void)
     }
     else if(id == 0)
     {
+        //sleep(2); //only for testing!  
         printf("HK forked and execed with id %d\n", getpid());
         hk_node->id = getpid();
         execv("/home/smr/Anant/Housekeeping/hk", NULL);
@@ -78,6 +79,7 @@ void hk(void)
 
 void bdot(void)
 {
+    printf("BDOT CALLED\n");
     //to be added.
     bdot_node->not_running = 0;
     return;
@@ -104,7 +106,7 @@ void advbkn(void)
     }
 }
 
-void order_list(node *temp)         //temp will always be head. See iterate function.
+void order_list(node *temp)
 {
     node *iter, *prv_iter;
     node *second_head;
@@ -123,7 +125,7 @@ void order_list(node *temp)         //temp will always be head. See iterate func
             temp->next = iter;
             if(prv_iter!=temp)
                 prv_iter->next = temp;
-            if(iter!=head->next&&flag)
+            if(iter!=second_head&&flag)
             {
                 head = second_head;
             }
@@ -155,6 +157,9 @@ void iterate(void)
             (*head).func();
             clock_gettime(CLOCK_MONOTONIC, &ts);
             time_microsec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
+            /*if(head==hk_node)
+            head->next_time = time_microsec+freq+2000000;
+            else       // only for testing*/  
             head->next_time = time_microsec+freq;
             order_list(head);
         }
@@ -186,9 +191,8 @@ int main()
     double time_microsec = (double) ts.tv_sec*1000000 + (double) ts.tv_nsec/1000;
     printf("time %f\n", time_microsec);
     hk_node->next_time = time_microsec;
-    
-    bdot_node->next_time = time_microsec+0.3;
-    advbkn_node->next_time = time_microsec+0.5;
+    bdot_node->next_time = time_microsec;
+    advbkn_node->next_time = time_microsec;
     
     iterate();
     free(hk_node);

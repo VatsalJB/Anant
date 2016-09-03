@@ -15,7 +15,6 @@ int main()
         printf("Not opened\n");
         exit(0);
     }
-    printf("opened\n");
     time_t curt;
     curt = time(NULL);
     //fseek(f, 0, SEEK_END);

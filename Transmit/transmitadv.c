@@ -14,7 +14,6 @@ int main()
         perror("Error");
         exit(0);
     }
-    printf("opened\n");
     time_t curt;
     curt = time(NULL);
     char* finalstr = (char*) malloc(50); 
