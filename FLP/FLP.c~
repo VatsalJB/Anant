@@ -66,7 +66,7 @@ void hk(void)
     }
     else if(id == 0)
     {
-        //sleep(2); only for testing!  
+        sleep(2); //only for testing!  
         printf("HK forked and execed with id %d\n", getpid());
         hk_node->id = getpid();
         execv("/home/smr/Anant/Housekeeping/hk", NULL);
@@ -106,7 +106,7 @@ void advbkn(void)
     }
 }
 
-void order_list(node *temp)         //temp will always be head. See iterate function.
+void order_list(node *temp)
 {
     node *iter, *prv_iter;
     node *second_head;
@@ -157,7 +157,7 @@ void iterate(void)
             (*head).func();
             clock_gettime(CLOCK_MONOTONIC, &ts);
             time_microsec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
-            /*if(head==hk_node)
+            if(head==hk_node)
             head->next_time = time_microsec+freq+2000000;
             else       // only for testing*/  
             head->next_time = time_microsec+freq;
