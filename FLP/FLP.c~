@@ -5,6 +5,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 
 #define freq 1000000
 
@@ -13,7 +14,7 @@ void (*func)(void);
 struct linked *next;
 int not_running;
 double next_time;
-pid_t id;
+int id;
 } node;
 
 node *hk_node, *bdot_node, *advbkn_node, *head;
@@ -23,8 +24,8 @@ clock_t clstr;
 void child_terminate()   //nonblocking!
 {
     int stat;
-    pid_t temp;
-    temp = waitpid(-1, &stat, WNOHANG);
+    int temp;
+    temp = (int) waitpid(-1, &stat, WNOHANG);
    while(temp>0)
     {
         if(WIFEXITED(stat))
@@ -46,18 +47,20 @@ void child_terminate()   //nonblocking!
                 bdot_node->id = 0;
             }
         }
-        temp = waitpid(-1, &stat, WNOHANG);    
+        temp = waitpid(-1, &stat, WNOHANG);
+        if(temp==0)
+        {
+            return;
+        }
         if(temp==-1)
         {
-            perror("Error");
-            printf("\n");
+            return;
         }
     }
 }
 
 void hk(void)
 {
-    hk_node->not_running = 0;
     pid_t id;
     id = fork();
     if(id<0)
@@ -66,13 +69,14 @@ void hk(void)
     }
     else if(id == 0)
     {
-        sleep(2); //only for testing!  
         printf("HK forked and execed with id %d\n", getpid());
-        hk_node->id = getpid();
+        sleep(5); //only for testing! 
         execv("/home/smr/Anant/Housekeeping/hk", NULL);
     }
     else
     {
+        hk_node->not_running = 0;
+        hk_node->id = id;   //fork returns the id of the child process to the parent process.
         return;
     }
 }
@@ -81,13 +85,11 @@ void bdot(void)
 {
     printf("BDOT CALLED\n");
     //to be added.
-    bdot_node->not_running = 0;
     return;
 }
 
 void advbkn(void)
 {
-    advbkn_node->not_running = 0;
     pid_t id;
     id = fork();
     if(id<0)
@@ -97,11 +99,13 @@ void advbkn(void)
     else if(id == 0)
     {
         printf("ADVBKN forked and execed %d\n", getpid());
-        advbkn_node->id = getpid();
+        sleep(3);       //remove after tesing
         execv("/home/smr/Anant/Transmit/transmitadv", NULL);
     }
     else
     {
+        advbkn_node->not_running = 0;
+        advbkn_node->id = id;
         return;
     }
 }
@@ -152,14 +156,20 @@ void iterate(void)
     {
         clock_gettime(CLOCK_MONOTONIC, &ts);
         double time_microsec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
-        if((time_microsec>head->next_time||time_microsec==head->next_time)&&head->id==0)
+        if(head->not_running==0)
+        {
+            if(head==hk_node)
+                head->next_time = time_microsec+freq+1000000;
+            else
+            head->next_time = time_microsec+freq;
+            order_list(head);
+        }
+        else if(time_microsec>head->next_time||time_microsec==head->next_time)
         {
             (*head).func();
-            clock_gettime(CLOCK_MONOTONIC, &ts);
-            time_microsec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
             if(head==hk_node)
-            head->next_time = time_microsec+freq+2000000;
-            else       // only for testing*/  
+                head->next_time = time_microsec+freq+1000000;
+            else
             head->next_time = time_microsec+freq;
             order_list(head);
         }
@@ -170,7 +180,7 @@ int main()
 {    
     struct sigaction handlr_struct;
     handlr_struct.sa_handler = child_terminate;
-    handlr_struct.sa_flags = SA_RESTART;
+    handlr_struct.sa_flags = SA_RESTART|SA_NODEFER;
     sigemptyset(&handlr_struct.sa_mask);
     sigaction(SIGCHLD, &handlr_struct, NULL);
     
@@ -183,7 +193,12 @@ int main()
     
     hk_node->func = hk;
     bdot_node->func = bdot;
-    advbkn_node->func = advbkn;    
+    advbkn_node->func = advbkn;  
+    
+    hk_node->not_running = 1;
+    bdot_node->not_running = 1;
+    advbkn_node->not_running = 1; 
+    
     head = hk_node;    
      
     struct timespec ts;
