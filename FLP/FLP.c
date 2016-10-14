@@ -1,3 +1,8 @@
+/*
+    Author- Saurabh Raje
+    --Code for the flightplan master process.
+*/
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -7,7 +12,17 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 
-#define freq 1000000
+#define freq 1000000    //This is the housekeeping frequency in microseconds
+
+/*
+    ----Struct for the subtasks of the idle mode of the satellite----
+    
+    void (*func)(void) = function pointer to the corresponding wrapper function for the subtask.
+    *next = pointer to the next node (subtask) of the linked list.
+    int not_running = flag with value 1 if child process has died and zero if it is alive and executing.
+    double next_time = next time of execution for the subtask.
+    int id = zero if no child is running for that subtask. Otherwise equal to the process ID of the child in currently carrying out this task.
+*/
 
 typedef struct linked{
 void (*func)(void);
@@ -21,16 +36,24 @@ node *hk_node, *bdot_node, *advbkn_node, *head;
 
 clock_t clstr;
 
-void child_terminate()   //nonblocking!
+void child_terminate()   //nonblocking termination handler for any of the subtasks(child processes)
 {
-    int stat;
+    int stat;           //Stores the meta-data of terminated child. See man page for details
     int temp;
-    temp = (int) waitpid(-1, &stat, WNOHANG);
-   while(temp>0)
+    temp = (int) waitpid(-1, &stat, WNOHANG);   //WNOHANG ensures immediate return in case of no dead babies
+    /*
+        While loop is necessary in case of multiple child processes dying at the same time leading to generation of a single SIGCHILD signal.
+        Waitpid() must be called in a loop to ensure no zombies. See the man page of waitpid for more details.
+    */
+    
+    while(temp>0)
     {
         if(WIFEXITED(stat))
         {
             printf("Dead baby %d\n", temp);
+            /*
+                Checking the running status for each subtask
+            */
             if(temp==hk_node->id)
             {
                 hk_node->not_running = 1;
@@ -59,6 +82,11 @@ void child_terminate()   //nonblocking!
     }
 }
 
+/*
+    Each of the following wrapper functions fork and exec the corresponding child process. 
+    Process ID of the child processes is logged in the task node of that subtask residing in the parent process memory.
+*/
+
 void hk(void)
 {
     pid_t id;
@@ -70,13 +98,13 @@ void hk(void)
     else if(id == 0)
     {
         printf("HK forked and execed with id %d\n", getpid());
-        //sleep(5); //only for testing! 
+        //sleep(5); //only for testing asynchronous operation! 
         execv("/home/smr/Anant/Housekeeping/hk", NULL);
     }
     else
     {
         hk_node->not_running = 0;
-        hk_node->id = id;   //fork returns the id of the child process to the parent process.
+        hk_node->id = id;   //fork returns the id of the child process to the parent process which will be logged for the subtask.
         return;
     }
 }
@@ -109,6 +137,11 @@ void advbkn(void)
         return;
     }
 }
+
+/*
+    --Consider this as a blackbox that takes a node and puts it back in the list corresponding to its time of next execution.--
+    Tedious code follows...
+*/
 
 void order_list(node *temp)
 {
@@ -149,6 +182,10 @@ void order_list(node *temp)
     }
 }
 
+/*
+    This pops the head node and conditionally executes it but necessarily reorders the linked list.
+*/
+
 void iterate(void)
 {   
     struct timespec ts;
@@ -156,7 +193,7 @@ void iterate(void)
     {
         clock_gettime(CLOCK_MONOTONIC, &ts);
         double time_microsec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
-        if(head->not_running==0)
+        if(head->not_running==0)        //check if the subtask corresponding to the head is currently running
         {
             /*if(head==hk_node)
                 head->next_time = time_microsec+freq+1000000;
@@ -164,9 +201,9 @@ void iterate(void)
             head->next_time = time_microsec+freq;
             order_list(head);
         }
-        else if(time_microsec>head->next_time||time_microsec==head->next_time)
+        else if(time_microsec>head->next_time||time_microsec==head->next_time)      //check if the scheduled time has elapsed or not
         {
-            (*head).func();
+            (*head).func();         
             /*if(head==hk_node)
                 head->next_time = time_microsec+freq+1000000;
             else*/
@@ -178,11 +215,20 @@ void iterate(void)
 
 int main()
 {    
+    
+    /*
+        Map the SIGCHLD signal to our custom made signal handler that will be called in case the signal is raised.
+        SIGCHLD is a signal that is generated and sent to the parent process when the child process terminates.
+    */
     struct sigaction handlr_struct;
     handlr_struct.sa_handler = child_terminate;
     handlr_struct.sa_flags = SA_RESTART|SA_NODEFER;
     sigemptyset(&handlr_struct.sa_mask);
     sigaction(SIGCHLD, &handlr_struct, NULL);
+    
+    /*
+        Make and initialise the linked list.
+    */
     
     hk_node = (node*) malloc(sizeof(node));
     bdot_node = (node*) malloc(sizeof(node));
@@ -209,8 +255,10 @@ int main()
     bdot_node->next_time = time_microsec;
     advbkn_node->next_time = time_microsec;
     
-    iterate();
+    iterate();      //Initialisation over. Hello World!
     free(hk_node);
     free(bdot_node);
     free(advbkn_node);
+    
+    //Drops mic
 }
