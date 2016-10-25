@@ -71,11 +71,7 @@ void child_terminate()   //nonblocking termination handler for any of the subtas
             }
         }
         temp = waitpid(-1, &stat, WNOHANG);
-        if(temp==0)
-        {
-            return;
-        }
-        if(temp==-1)
+        if(temp==0||temp==-1)
         {
             return;
         }
@@ -98,7 +94,7 @@ void hk(void)
     else if(id == 0)
     {
         printf("HK forked and execed with id %d\n", getpid());
-        //sleep(5); //only for testing asynchronous operation! 
+        //sleep(2); //only for testing asynchronous operation! 
         execv("/home/smr/Anant/Housekeeping/hk", NULL);
     }
     else
@@ -198,6 +194,7 @@ void iterate(void)
             /*if(head==hk_node)
                 head->next_time = time_microsec+freq+1000000;
             else*/
+            //printf("ID is: %d @%d & hk id is:%d\n", head->id, head, hk_node->id);    //testing only
             head->next_time = time_microsec+freq;
             order_list(head);
         }
