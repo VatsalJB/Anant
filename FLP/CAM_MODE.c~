@@ -159,7 +159,7 @@ void order_list(node *temp)
     if(temp==head)
     {
         second_head = head->next;
-        printf("second head id %d pointing @%d\n", second_head->id, second_head);
+        printf("second head id %d pointing @%d\n", hk_node->id, second_head);
         flag = 1;
     }
     while(iter!=NULL)

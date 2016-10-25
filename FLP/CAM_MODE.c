@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <sys/wait.h>
-#include <pthread.h>
 
 #define freq 1000000
 
@@ -20,13 +19,11 @@ int id;
 
 node *hk_node, *cam_pointing_n, *take_pic_n, *advbkn_node, *head;
 
-pthread_mutex_t l;
 
 clock_t clstr;
 
 void child_terminate()   //nonblocking!
 {
-    pthread_mutex_lock(&l);
     int stat;
     int temp;
     temp = (int) waitpid(-1, &stat, WNOHANG);
@@ -53,7 +50,6 @@ void child_terminate()   //nonblocking!
             }
             else if(temp==take_pic_n->id)
             {
-                //printf("baby's name was take_pic\n");       //testing only
                 take_pic_n->not_running = 1;
                 take_pic_n->id = 0;
             }
@@ -68,12 +64,10 @@ void child_terminate()   //nonblocking!
             return;
         }
     }
-    pthread_mutex_unlock(&l);
 }
 
 void hk(void)
 {
-    //printf("hk not_running = %d\n", hk_node->not_running);    //testing only
     pid_t nid;
     nid = fork();
     if(nid<0)
@@ -88,11 +82,9 @@ void hk(void)
     }
     else
     {
-        pthread_mutex_lock(&l);
         hk_node->not_running = 0;
         hk_node->id = nid;   //fork returns the id of the child process to the parent process.
-        printf("New HK id should be %d and is %d @%d\n", nid, hk_node->id, hk_node);
-        pthread_mutex_unlock(&l);
+        printf("New HK id should be %d and is %d @%d\n", nid, hk_node->id, hk_node);    //testing only
         return;
     }
 }
@@ -127,7 +119,6 @@ void take_pic(void)     //child must block till the cam triggers a hardware inte
 
 void advbkn(void)
 {
-    //printf("adv id = %d\n", advbkn_node->id); //testing only
     pid_t nid;
     nid = fork();
     if(nid<0)
@@ -150,7 +141,6 @@ void advbkn(void)
 
 void order_list(node *temp)
 {
-    pthread_mutex_lock(&l);
     node *iter, *prv_iter;
     node *second_head;
     int flag =0;
@@ -159,7 +149,7 @@ void order_list(node *temp)
     if(temp==head)
     {
         second_head = head->next;
-        printf("second head id %d pointing @%d\n", hk_node->id, second_head);
+        printf("second head id %d pointing @%d\n", hk_node->id, second_head);       //testing only
         flag = 1;
     }
     while(iter!=NULL)
@@ -187,7 +177,6 @@ void order_list(node *temp)
             head = second_head;
         }
     }
-    pthread_mutex_unlock(&l);
 }
 
 void iterate(void)
@@ -195,25 +184,17 @@ void iterate(void)
     struct timespec ts;
     while(1)
     {
-        //printf("hk id is:%d\n", hk_node->id);    //testing only
         clock_gettime(CLOCK_MONOTONIC, &ts);
         double time_microsec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
         if(head->not_running==0)
         {
-            /*if(head==hk_node)
-                head->next_time = time_microsec+freq+1000000;
-            else*/
             printf("ID is: %d @%d & hk id is:%d\n", head->id, head, hk_node->id);    //testing only
             head->next_time = time_microsec+freq;
             order_list(head);
-            sleep(2);       //testing only.
         }
         else if(time_microsec>head->next_time||time_microsec==head->next_time)
         {
             (*head).func();
-            /*if(head==hk_node)
-                head->next_time = time_microsec+freq+1000000;
-            else*/
             head->next_time = time_microsec+freq;
             order_list(head);
         }
