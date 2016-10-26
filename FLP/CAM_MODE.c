@@ -19,7 +19,6 @@ int id;
 
 node *hk_node, *cam_pointing_n, *take_pic_n, *advbkn_node, *head;
 
-
 clock_t clstr;
 
 void child_terminate()   //nonblocking!
@@ -36,7 +35,7 @@ void child_terminate()   //nonblocking!
             {
                 hk_node->not_running = 1;
                 hk_node->id = 0;
-                printf("ID of @%d updated to %d\n", hk_node, hk_node->id);       //testing only
+                //printf("ID of @%d updated to %d\n", hk_node, hk_node->id);       //testing only
             }
             else if(temp==advbkn_node->id)
             {
@@ -78,13 +77,16 @@ void hk(void)
     {
         printf("HK forked and execed with id %d\n", getpid());
         //sleep(5); //only for testing! 
-        execv("/home/smr/Anant/Housekeeping/hk", NULL);
+        if(execv("/home/smr/Anant/Housekeeping/hk", NULL)==-1)
+        {
+            perror("HK error");
+        }
+        exit(EXIT_SUCCESS);
     }
     else
     {
         hk_node->not_running = 0;
         hk_node->id = nid;   //fork returns the id of the child process to the parent process.
-        printf("New HK id should be %d and is %d @%d\n", nid, hk_node->id, hk_node);    //testing only
         return;
     }
 }
@@ -96,7 +98,6 @@ void cam_pointing(void)
 
 void take_pic(void)     //child must block till the cam triggers a hardware interrupt that pic was taken successfully.
 {
-    printf("%d\n", take_pic_n->id);
     pid_t nid;
     nid = fork();
     if(nid<0)
@@ -107,7 +108,11 @@ void take_pic(void)     //child must block till the cam triggers a hardware inte
     {
         printf("TAKE_PIC forked and execed %d\n", getpid());
         //sleep(3);       //remove after tesing
-        execv("/home/smr/Anant/CAM/take_pic_n", NULL);
+        if(execv("/home/smr/Anant/CAM/TAKE_PIC", NULL)==-1)
+        {
+            perror("TAKE_PIC error");
+        }
+        exit(EXIT_SUCCESS);
     }
     else
     {
@@ -129,7 +134,11 @@ void advbkn(void)
     {
         printf("ADVBKN forked and execed %d\n", getpid());
         //sleep(3);       //remove after tesing
-        execv("/home/smr/Anant/Transmit/transmitadv", NULL);
+        if(execv("/home/smr/Anant/Transmit/transmitadv", NULL)==-1)
+        {
+            perror("ADVBBKN error");
+        }
+        exit(EXIT_SUCCESS);
     }
     else
     {
@@ -149,7 +158,6 @@ void order_list(node *temp)
     if(temp==head)
     {
         second_head = head->next;
-        printf("second head id %d pointing @%d\n", hk_node->id, second_head);       //testing only
         flag = 1;
     }
     while(iter!=NULL)
@@ -188,7 +196,6 @@ void iterate(void)
         double time_microsec = (double) ts.tv_sec*1000000 +  (double) ts.tv_nsec/1000;
         if(head->not_running==0)
         {
-            printf("ID is: %d @%d & hk id is:%d\n", head->id, head, hk_node->id);    //testing only
             head->next_time = time_microsec+freq;
             order_list(head);
         }
@@ -213,12 +220,7 @@ int main()
     cam_pointing_n = (node*) malloc(sizeof(node));
     take_pic_n = (node*) malloc(sizeof(node));
     advbkn_node = (node*) malloc(sizeof(node));
-    //testing data
-    printf("hk is @%d\n", hk_node);
-    printf("cam_pointing is @%d\n", cam_pointing_n);
-    printf("take_pic is @%d\n", take_pic_n);
-    printf("advbkn is @%d\n", advbkn_node);
-    //end of testing data
+    
     hk_node->next = cam_pointing_n;
     cam_pointing_n->next = take_pic_n;
     take_pic_n->next = advbkn_node;
@@ -234,7 +236,7 @@ int main()
     advbkn_node->not_running = 1;
     take_pic_n->not_running = 1;
     
-    head = hk_node;    
+    head = hk_node;
 
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
