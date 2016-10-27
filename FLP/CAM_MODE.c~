@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 
 #define freq 1000000
+#define CAMSIG SIGRTMIN
 
 typedef struct linked{
 void (*func)(void);
@@ -17,7 +18,7 @@ double next_time;
 int id;
 } node;
 
-node *hk_node, *cam_pointing_n, *take_pic_n, *advbkn_node, *head;
+node *hk_node, *cam_pointing_n, *take_pic_n, *advbkn_node, *switch_node, *head;
 
 clock_t clstr;
 
@@ -65,6 +66,11 @@ void child_terminate()   //nonblocking!
     }
 }
 
+void jagomohanpyare(void)
+{
+    //lite
+}
+
 void hk(void)
 {
     pid_t nid;
@@ -98,7 +104,6 @@ void cam_pointing(void)
 
 void take_pic(void)     //child must block till the cam triggers a hardware interrupt that pic was taken successfully.
 {
-    //printf("%d\n", take_pic_n->id); //testing only.
     pid_t nid;
     nid = fork();
     if(nid<0)
@@ -147,6 +152,24 @@ void advbkn(void)
         advbkn_node->id = nid;
         return;
     }
+}
+
+void switch_mode(void)
+{
+    srand(time(0));
+    if(rand()%2==1)
+    {
+        while(!(hk_node->not_running)||!(cam_pointing_n->not_running)||!(take_pic_n->not_running)||!(advbkn_node->not_running))     //Even if any one of the children is alive, wait for it to die.
+        {
+            //do nothing
+            //printf("Die baby die\n");   //testing only.
+        }
+        if(execv("FLP", NULL)==-1)
+        {
+            perror("Switch CAM to FLP");
+        }
+    }
+    return;
 }
 
 void order_list(node *temp)
@@ -217,25 +240,33 @@ int main()
     sigemptyset(&handlr_struct.sa_mask);
     sigaction(SIGCHLD, &handlr_struct, NULL);
     
+    struct sigaction handlr_struct_rt;
+    handlr_struct_rt.sa_handler = jagomohanpyare;
+    sigaction(CAMSIG, &handlr_struct_rt, NULL);
+    
     hk_node = (node*) malloc(sizeof(node));
     cam_pointing_n = (node*) malloc(sizeof(node));
     take_pic_n = (node*) malloc(sizeof(node));
     advbkn_node = (node*) malloc(sizeof(node));
+    switch_node = (node*) malloc(sizeof(node));
     
     hk_node->next = cam_pointing_n;
     cam_pointing_n->next = take_pic_n;
     take_pic_n->next = advbkn_node;
-    advbkn_node->next = NULL;
+    advbkn_node->next = switch_node;
+    switch_node->next = NULL;
     
     hk_node->func = hk;
     cam_pointing_n->func = cam_pointing;
     take_pic_n->func = take_pic;
     advbkn_node->func = advbkn;  
+    switch_node->func = switch_mode;
     
     hk_node->not_running = 1;
     cam_pointing_n->not_running = 1;
     advbkn_node->not_running = 1;
     take_pic_n->not_running = 1;
+    switch_node->not_running = 1;
     
     head = hk_node;
 
@@ -248,10 +279,12 @@ int main()
     cam_pointing_n->next_time = time_microsec;
     take_pic_n->next_time = time_microsec;
     advbkn_node->next_time = time_microsec;
+    switch_node->next_time = time_microsec;
     
     iterate();
     free(hk_node);
     free(cam_pointing_n);
     free(advbkn_node);
     free(take_pic_n);
+    free(switch_node);
 }

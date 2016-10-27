@@ -128,7 +128,11 @@ void advbkn(void)
     {
         printf("ADVBKN forked and execed %d\n", getpid());
         //sleep(3);       //remove after tesing
-        execv("/home/smr/Anant/Transmit/transmitadv", NULL);
+        if(execv("/home/smr/Anant/Transmit/transmitadv", NULL)==-1)
+        {
+            perror("ADVBKN failed to exec");
+        }
+        exit(EXIT_SUCCESS);
     }
     else
     {

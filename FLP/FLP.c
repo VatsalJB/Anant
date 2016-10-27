@@ -225,6 +225,7 @@ int main()
         Map the SIGCHLD signal to our custom made signal handler that will be called in case the signal is raised.
         SIGCHLD is a signal that is generated and sent to the parent process when the child process terminates.
     */
+    printf("Hello world this is FLP!\n");       //testing
     struct sigaction handlr_struct;
     handlr_struct.sa_handler = child_terminate;
     handlr_struct.sa_flags = SA_RESTART|SA_NODEFER;
