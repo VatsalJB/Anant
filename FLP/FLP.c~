@@ -1,8 +1,3 @@
-/*
-    Author- Saurabh Raje
-    --Code for the flightplan master process.
-*/
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -32,7 +27,7 @@ double next_time;
 int id;
 } node;
 
-node *hk_node, *bdot_node, *advbkn_node, *head;
+node *hk_node, *bdot_node, *advbkn_node, *switch_node, *head;
 
 clock_t clstr;
 
@@ -142,6 +137,23 @@ void advbkn(void)
     }
 }
 
+void switch_mode(void)
+{
+    srand(time(0));
+    if(rand()%10==5)
+    {
+        while(!(hk_node->not_running)||!(bdot_node->not_running)||!(advbkn_node->not_running))     //Even if any one of the children is alive, wait for it to die.
+        {
+            //do nothing
+        }
+        if(execv("CAM_MODE", NULL)==-1)
+        {
+            perror("Switch FLP to CAM");
+        }
+    }
+    return;
+}
+
 /*
     --Consider this as a blackbox that takes a node and puts it back in the list corresponding to its time of next execution.--
     Tedious code follows...
@@ -225,6 +237,7 @@ int main()
         Map the SIGCHLD signal to our custom made signal handler that will be called in case the signal is raised.
         SIGCHLD is a signal that is generated and sent to the parent process when the child process terminates.
     */
+    printf("Hello world this is FLP!\n");       //testing
     struct sigaction handlr_struct;
     handlr_struct.sa_handler = child_terminate;
     handlr_struct.sa_flags = SA_RESTART|SA_NODEFER;
@@ -238,17 +251,22 @@ int main()
     hk_node = (node*) malloc(sizeof(node));
     bdot_node = (node*) malloc(sizeof(node));
     advbkn_node = (node*) malloc(sizeof(node));
+    switch_node = (node*) malloc(sizeof(node));
+    
     hk_node->next = bdot_node;
     bdot_node->next = advbkn_node;
-    advbkn_node->next = NULL;
+    advbkn_node->next = switch_node;
+    switch_node->next = NULL;
     
     hk_node->func = hk;
     bdot_node->func = bdot;
-    advbkn_node->func = advbkn;  
+    advbkn_node->func = advbkn;
+    switch_node->func = switch_mode;
     
     hk_node->not_running = 1;
     bdot_node->not_running = 1;
-    advbkn_node->not_running = 1; 
+    advbkn_node->not_running = 1;
+    switch_node->not_running = 1;
     
     head = hk_node;    
      
