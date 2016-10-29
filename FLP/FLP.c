@@ -218,7 +218,7 @@ void iterate(void)
             head->next_time = time_microsec+freq;
             order_list(head);
         }
-        else if(time_microsec>head->next_time||time_microsec==head->next_time)      //check if the scheduled time has elapsed or not
+        else if(time_microsec>=head->next_time)      //check if the scheduled time has elapsed or not
         {
             (*head).func();         
             /*if(head==hk_node)
