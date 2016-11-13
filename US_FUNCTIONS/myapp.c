@@ -5,8 +5,6 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
-#include <linux/i2c.h>
-#include <linux/i2c-smbus.h>
 
 int convert(int hex_complement)
 {
