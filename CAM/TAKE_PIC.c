@@ -7,7 +7,7 @@
 //signal handler for a custom real time signal that is generated iff the camera is not taking a picture.
 //this signal handler should suicide.
 
-void jagomohanpyare(void)
+void respond(void)
 {
     //printf("Signal received\n");
     exit(EXIT_SUCCESS);
@@ -30,7 +30,7 @@ void take_pic(void)
 int main()
 {
     struct sigaction handlr_struct_rt;
-    handlr_struct_rt.sa_handler = jagomohanpyare;
+    handlr_struct_rt.sa_handler = respond;
     sigaction(CAMSIG, &handlr_struct_rt, NULL);
     int flag = check_power();
     if(flag==0)
