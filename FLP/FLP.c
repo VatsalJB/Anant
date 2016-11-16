@@ -35,7 +35,7 @@ void child_terminate()   //nonblocking termination handler for any of the subtas
 {
     int stat;           //Stores the meta-data of terminated child. See man page for details
     int temp;
-    temp = (int) waitpid(-1, &stat, WNOHANG);   //WNOHANG ensures immediate return in case of no dead babies
+    temp = (int) waitpid(-1, &stat, WNOHANG);   //WNOHANG ensures immediate return in case of no dead child processes
     /*
         While loop is necessary in case of multiple child processes dying at the same time leading to generation of a single SIGCHILD signal.
         Waitpid() must be called in a loop to ensure no zombies. See the man page of waitpid for more details.
@@ -45,7 +45,7 @@ void child_terminate()   //nonblocking termination handler for any of the subtas
     {
         if(WIFEXITED(stat))
         {
-            printf("Dead baby %d\n", temp);
+            printf("Dead process %d\n", temp);
             /*
                 Checking the running status for each subtask
             */

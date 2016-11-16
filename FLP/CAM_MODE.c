@@ -66,7 +66,7 @@ void child_terminate()   //nonblocking!
     }
 }
 
-void jagomohanpyare(void)
+void respond(void)
 {
     //lite
 }
@@ -162,7 +162,6 @@ void switch_mode(void)
         while(!(hk_node->not_running)||!(cam_pointing_n->not_running)||!(take_pic_n->not_running)||!(advbkn_node->not_running))     //Even if any one of the children is alive, wait for it to die.
         {
             //do nothing
-            //printf("Die baby die\n");   //testing only.
         }
         if(execv("FLP", NULL)==-1)
         {
@@ -241,7 +240,7 @@ int main()
     sigaction(SIGCHLD, &handlr_struct, NULL);
     
     struct sigaction handlr_struct_rt;
-    handlr_struct_rt.sa_handler = jagomohanpyare;
+    handlr_struct_rt.sa_handler = respond;
     sigaction(CAMSIG, &handlr_struct_rt, NULL);
     
     hk_node = (node*) malloc(sizeof(node));
