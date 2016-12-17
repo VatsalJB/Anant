@@ -1,7 +1,7 @@
 #ifndef hwfunctions.h
 #define hwfunctions.h
 
-#include "US_FUNCTIONS/userspace.h"
+#include "US_FUNCTIONS/HMC5883L.h"
 
 
 float get_S1()
