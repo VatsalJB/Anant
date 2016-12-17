@@ -33,6 +33,7 @@ int main()
     sprintf(finalstr, "Ax: %f\n", get_Ax());fputs(finalstr, f);
     sprintf(finalstr, "Ay: %f\n", get_Ay());fputs(finalstr, f);
     sprintf(finalstr, "Az: %f *end of block*\n\n", get_Az());
+
     fputs(finalstr, f);
     fclose(f);
     ret((void* ) finalstr, 140);
