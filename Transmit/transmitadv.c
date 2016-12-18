@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <time.h>
-#include "/home/smr/Anant/Housekeeping/hwfunctions.h"
+#include "/Anant/US_FUNCTIONS/hwfunctions.h"
 #include <stdlib.h>
 #include <errno.h>
 

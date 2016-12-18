@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "hwfunctions.h"
 #include "/home/smr/Anant/Memory_management/mempool.h"
+#include "/Anant/US_FUNCTIONS/hwfunctions.h"
 #include <time.h>
 
 int main()

@@ -9,3 +9,5 @@ void init_magnetometer();
 void set_magnetometer_freq(int);
 void set_magnetometer_gain(int);
 void set_magnetometer_mode(int);
+
+#endif
