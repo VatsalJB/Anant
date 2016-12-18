@@ -45,6 +45,7 @@
 #Autogen
 *.c~
 *.h~
+*.*~
 
 # Kernel Module Compile Results
 *.mod*
