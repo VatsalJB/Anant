@@ -7,34 +7,36 @@
 #include <stdint.h>
 #include <inttypes.h>
 
-#define addr 0x68
+#define ADDR 0x68
 
 static int file;
 static __s32 res;
 static __u8 reg;
 
+//set flag to 1 for making it sleep and 0 for awake.
 void set_sleep_gy521(int flag)
 {
-	if(flag==0)    //wake up the device
+	if(flag==0)
 	{
-		//Accessing reg 107
 		reg = 0x6B;
 		uint8_t val8 = 0x01;     //write 0x00 if you want to set the internal 8MHz oscillator as CLK                                              
 		res = i2c_smbus_write_byte_data(file, reg, val8);
 		if(res<0) 
 			perror("Failed to wake it up\n");
-		else 
+		/*else 
 			printf("Device is awake\n");
+		*/
 	}
-	else      //set it to sleep
+	else if(flag == 1)    //set it to sleep
 	{
 		reg = 0x6B;
-		uint8_t val8 = 0x41;   //write 0x40 if you want to set the internal 8MHz oscillator as CLK                                             //
+		uint8_t val8 = 0x41;   //write 0x40 if you want to set the internal 8MHz oscillator as CLK
 		res = i2c_smbus_write_byte_data(file, reg, val8);
 		if(res<0) 
 			perror("Failed to go to sleep\n");
-		else 
+		/*else 
 			printf("In sleep mode\n");
+		*/
 	}
 }
 
