@@ -1,8 +1,8 @@
 #ifndef hwfunctions.h
 #define hwfunctions.h
 
-#include "US_FUNCTIONS/GY521.h"
-#include "US_FUNCTIONS/HMC5883L.h"
+#include "GY521.h"
+#include "HMC5883L.h"
 
 float get_S1()
 {
