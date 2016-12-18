@@ -51,7 +51,7 @@ void init_gy521()
 		perror("File not opened");	
 		exit(1);
 	}
-	if(ioctl(file, I2C_SLAVE, addr)<0)
+	if(ioctl(file, I2C_SLAVE, ADDR)<0)
 	{
 		perror(":( Not able to access the device\n");
 		exit(EXIT_FAILURE);
