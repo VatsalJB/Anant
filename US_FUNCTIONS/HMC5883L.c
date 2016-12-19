@@ -70,7 +70,7 @@ void init_magnetometer()
 
 /**	
 *	The value of freq must be according to the following table:
-*	Value 		Rate (Hz)
+*	Value 			Rate (Hz)
 *	0			0.75
 *	1			1.5
 *	2			3
@@ -126,7 +126,7 @@ void set_magnetometer_gain(int gain)
 
 /**	
 *	The value of mode must be according to the following table:
-*	Value 		Mode
+*	Value 				Mode
 *	0			Continuous
 *	1			Single	(Default)
 *	2			Idle
