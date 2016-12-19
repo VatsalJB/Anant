@@ -12,6 +12,7 @@
 
 static int file;		//use static keyword to ensure that the scope of this variable is limited to this file.
 static int factor;
+static __u8 *buffer;
 
 //register addresses
 __u8 config_reg_A = 0x00;
@@ -23,50 +24,6 @@ __u8 data_Y_H = 0x07;
 __u8 data_Y_L = 0x08;
 __u8 data_Z_H = 0x05;
 __u8 data_Z_L = 0x06;
-
-//[IMPORTANT] Note that	 the following 3 functions will return the field values in milli gauss.
-float get_Bx()
-{
-	int16_t b_X_H = i2c_smbus_read_byte_data(file, data_X_H);
-	int16_t b_X_L = i2c_smbus_read_byte_data(file, data_X_L);
-	//concatenate the upper and lower bits
-	int16_t b_X = (b_X_H<<8) | b_X_L;
-	return (float)b_X*factor;
-}
-
-float get_By()
-{
-	int16_t b_Y_H = i2c_smbus_read_byte_data(file, data_Y_H);
-	int16_t b_Y_L = i2c_smbus_read_byte_data(file, data_Y_L);
-	int16_t b_Y = (b_Y_H<<8) | b_Y_L;
-	return (float)b_Y*factor;
-}
-
-float get_Bz()
-{
-	int16_t b_Z_H = i2c_smbus_read_byte_data(file, data_Z_H);
-	int16_t b_Z_L = i2c_smbus_read_byte_data(file, data_Z_L);
-	int16_t b_Z = (b_Z_H<<8) | b_Z_L;
-	return (float)b_Z*factor;
-}
-
-//Initializes the file used by the userspace calls. [IMPORTANT] Must be run before any other function is called for this device!.
-void init_magnetometer()
-{
-    int adapter_number = 0;     //check this.
-    char filename[20];
-    snprintf(filename, 19, "/dev/i2c-%d", adapter_number);
-    file = open(filename, O_RDWR);
-    if(file<0)
-    {
-        perror("File not opened");
-    }
-    if(ioctl(file, I2C_SLAVE, ADDRESS)<0)
-    {
-        perror("ioctl could not open file");
-    }
-    factor = 0.92;
-}
 
 /**	
 *	The value of freq must be according to the following table:
@@ -87,6 +44,69 @@ void set_magnetometer_frequency(int freq)
 		perror("Failed to change data rate");
 }
 
+__s32 get_B()
+{
+	return i2c_smbus_read_block_data(file, data_X_H, buffer);
+}
+
+//[IMPORTANT] Note that	 the following 3 functions will return the field values in milli gauss by reading them from the buffer.
+float get_Bx()
+{	
+	if(get_B()<0)
+	{
+		perror("Failed to read the block");
+		exit(1);
+	}
+	int16_t temp;
+	//concatenate the upper and lower bits
+	temp = buffer[9];
+	int16_t b_X = (temp<<8) | buffer[8];
+	return (float)b_X*factor;
+}
+
+float get_By()
+{
+	int16_t temp;
+	//concatenate the upper and lower bits
+	temp = buffer[5];
+	int16_t b_Y = (temp<<8) | buffer[4];
+	return (float)b_Y*factor;
+}
+
+float get_Bz()
+{
+	int16_t temp;
+	//concatenate the upper and lower bits
+	temp = buffer[7];
+	int16_t b_Z = (temp<<8) | buffer[6];
+	return (float)b_Z*factor;
+}
+
+//Initializes the file used by the userspace calls. [IMPORTANT] Must be run before any other function is called for this device!. This needs to be called only once for each process.
+void init_magnetometer()
+{
+    int adapter_number = 0;     //check this.
+    char filename[20];
+    snprintf(filename, 19, "/dev/i2c-%d", adapter_number);
+    file = open(filename, O_RDWR);
+    if(file<0)
+    {
+        perror("File not opened");
+    }
+    if(ioctl(file, I2C_SLAVE, ADDRESS)<0)
+    {
+        perror("ioctl could not open file");
+    }
+    factor = 0.92;
+    set_magnetometer_mode(0);
+    buffer = (__u8*) malloc(10);
+}
+
+void clear_magnetometer()
+{
+	close(file);
+	free(buffer);
+}
 
 /**	
 *	The value of gain must be according to the following table:
