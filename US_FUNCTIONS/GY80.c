@@ -104,3 +104,8 @@ float get_temp()
   	temp=temp/10;   //Temp calculated before this is in 0.1 degree C
   	return temp;
 }
+
+void clear_gy80()
+{
+	close(file);
+}

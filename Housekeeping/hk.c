@@ -15,6 +15,12 @@ int main()
         printf("Not opened\n");
         exit(0);
     }
+
+	//initialization of the three sensors
+	init_magnetometer();
+	init_gy521();
+	init_gy80();
+
     time_t curt;
     curt = time(NULL);
     //fseek(f, 0, SEEK_END);
@@ -36,5 +42,11 @@ int main()
 
     fputs(finalstr, f);
     fclose(f);
+	
+	//closing the three sensors
+	clear_magnetometer();
+	clear_gy521();
+	clear_gy80();
+
     ret((void* ) finalstr, 140);
 }

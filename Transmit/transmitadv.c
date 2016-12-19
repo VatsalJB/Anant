@@ -14,6 +14,12 @@ int main()
         perror("Error");
         exit(0);
     }
+
+	//initialization of the three sensors
+	init_magnetometer();
+	init_gy521();
+	init_gy80();
+
     time_t curt;
     curt = time(NULL);
     char* finalstr = (char*) malloc(50); 
@@ -34,5 +40,11 @@ int main()
     sprintf(finalstr, "Ay: %d\n", get_Ay());fputs(finalstr, f);
     sprintf(finalstr, "Az: %d *end of block*\n\n", get_Az());fputs(finalstr, f);
     FILE *f1 = send_hk_t(f);
+	fclose(f);
+	
+	//closing the three sensors
+	clear_magnetometer();
+	clear_gy521();
+	clear_gy80();
     
 }

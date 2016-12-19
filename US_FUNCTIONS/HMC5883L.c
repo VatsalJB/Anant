@@ -25,23 +25,23 @@ __u8 data_Y_L = 0x08;
 __u8 data_Z_H = 0x05;
 __u8 data_Z_L = 0x06;
 
+
 /**	
-*	The value of freq must be according to the following table:
-*	Value 		Rate (Hz)
-*	0			0.75
-*	1			1.5
-*	2			3
-*	3			7.5
-*	4			15		(Default)
-*	5			30
-*	6			75
+*	The value of mode must be according to the following table:
+*	Value 				Mode
+*	0			Continuous
+*	1			Single	(Default)
+*	2			Idle
+*	3			Idle
+*
+*	After any mode change care must be taken to set it back to continuous mode before reading any values.
 **/
-void set_magnetometer_frequency(int freq)
+void set_magnetometer_mode(int mode)
 {
 	__u8 value = 0x00;
-	value |= freq<<2;
-	if(i2c_smbus_write_byte_data(file, config_reg_A, value)<0)
-		perror("Failed to change data rate");
+	value |= mode;
+	if(i2c_smbus_write_byte_data(file, mode_reg, value)<0)
+		perror("Failed to change magnetometer mode");
 }
 
 __s32 get_B()
@@ -145,19 +145,21 @@ void set_magnetometer_gain(int gain)
 }
 
 /**	
-*	The value of mode must be according to the following table:
-*	Value 		Mode
-*	0			Continuous
-*	1			Single	(Default)
-*	2			Idle
-*	3			Idle
-*
-*	After any mode change care must be taken to set it back to continuous mode before reading any values.
+*	The value of freq must be according to the following table:
+*	Value 		Rate (Hz)
+*	0			0.75
+*	1			1.5
+*	2			3
+*	3			7.5
+*	4			15		(Default)
+*	5			30
+*	6			75
 **/
-void set_magnetometer_mode(int mode)
+void set_magnetometer_frequency(int freq)
 {
 	__u8 value = 0x00;
-	value |= mode;
-	if(i2c_smbus_write_byte_data(file, mode_reg, value)<0)
-		perror("Failed to change magnetometer mode");
+	value |= freq<<2;
+	if(i2c_smbus_write_byte_data(file, config_reg_A, value)<0)
+		perror("Failed to change data rate");
 }
+
