@@ -106,7 +106,7 @@ float get_Az()
 	return zout/16384.0*9.8;
 }
 
-float get_temp()
+float get_temp_gy521()
 {
 	__s16 temp = (((int16_t)values[6])<<8) | values[7];
 	return (temp/340.0 + 36.53);	

@@ -59,7 +59,7 @@ void init_gy80()
 	md  = get_cal(0xBE, 0xBF);
 }
 
-float get_temp()
+float get_temp_gy80()
 {
   	int16_t val1, val2, temp_raw;
 		
