@@ -3,6 +3,7 @@
 
 #include "GY521.h"
 #include "HMC5883L.h"
+#include "GY80.h"
 
 float get_S1()
 {
