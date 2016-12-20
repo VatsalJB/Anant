@@ -1,6 +1,3 @@
-/**
-*	To be tested!!
-**/
 #include <linux/i2c-dev-user.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,8 +8,8 @@
 #define ADDRESS 0x1e
 
 static int file;		//use static keyword to ensure that the scope of this variable is limited to this file.
-static int factor;
-static __u8 *buffer;
+static float factor;
+static __u8 buffer[6];
 
 //register addresses
 __u8 config_reg_A = 0x00;
@@ -26,9 +23,10 @@ __u8 data_Z_H = 0x05;
 __u8 data_Z_L = 0x06;
 
 
+
 /**	
 *	The value of mode must be according to the following table:
-*	Value 				Mode
+*	Value 		Mode
 *	0			Continuous
 *	1			Single	(Default)
 *	2			Idle
@@ -44,23 +42,20 @@ void set_magnetometer_mode(int mode)
 		perror("Failed to change magnetometer mode");
 }
 
-__s32 get_B()
+void get_B()
 {
-	return i2c_smbus_read_block_data(file, data_X_H, buffer);
+	if(i2c_smbus_read_i2c_block_data(file, data_X_H, 6, buffer)<0)
+		perror("Failed to read the block");
 }
 
-//[IMPORTANT] Note that	 the following 3 functions will return the field values in milli gauss by reading them from the buffer.
+//[IMPORTANT] Note that	 the following 3 functions will return the field values in milli gauss by reading them from the buffer. So call get_Bx() first!
 float get_Bx()
 {	
-	if(get_B()<0)
-	{
-		perror("Failed to read the block");
-		exit(1);
-	}
+	get_B();
 	int16_t temp;
 	//concatenate the upper and lower bits
-	temp = buffer[9];
-	int16_t b_X = (temp<<8) | buffer[8];
+	temp = buffer[0];
+	int16_t b_X = (temp<<8) | buffer[1];
 	return (float)b_X*factor;
 }
 
@@ -68,8 +63,8 @@ float get_By()
 {
 	int16_t temp;
 	//concatenate the upper and lower bits
-	temp = buffer[5];
-	int16_t b_Y = (temp<<8) | buffer[4];
+	temp = buffer[4];
+	int16_t b_Y = (temp<<8) | buffer[5];
 	return (float)b_Y*factor;
 }
 
@@ -77,8 +72,8 @@ float get_Bz()
 {
 	int16_t temp;
 	//concatenate the upper and lower bits
-	temp = buffer[7];
-	int16_t b_Z = (temp<<8) | buffer[6];
+	temp = buffer[2];
+	int16_t b_Z = (temp<<8) | buffer[3];
 	return (float)b_Z*factor;
 }
 
@@ -99,14 +94,32 @@ void init_magnetometer()
     }
     factor = 0.92;
     set_magnetometer_mode(0);
-    buffer = (__u8*) malloc(10);
 }
 
 void clear_magnetometer()
 {
 	close(file);
-	free(buffer);
 }
+
+/**	
+*	The value of freq must be according to the following table:
+*	Value 		Rate (Hz)
+*	0			0.75
+*	1			1.5
+*	2			3
+*	3			7.5
+*	4			15		(Default)
+*	5			30
+*	6			75
+**/
+void set_magnetometer_frequency(int freq)
+{
+	__u8 value = 0x00;
+	value |= freq<<2;
+	if(i2c_smbus_write_byte_data(file, config_reg_A, value)<0)
+		perror("Failed to change data rate");
+}
+
 
 /**	
 *	The value of gain must be according to the following table:
@@ -143,23 +156,3 @@ void set_magnetometer_gain(int gain)
 		}
 	}
 }
-
-/**	
-*	The value of freq must be according to the following table:
-*	Value 		Rate (Hz)
-*	0			0.75
-*	1			1.5
-*	2			3
-*	3			7.5
-*	4			15		(Default)
-*	5			30
-*	6			75
-**/
-void set_magnetometer_frequency(int freq)
-{
-	__u8 value = 0x00;
-	value |= freq<<2;
-	if(i2c_smbus_write_byte_data(file, config_reg_A, value)<0)
-		perror("Failed to change data rate");
-}
-
