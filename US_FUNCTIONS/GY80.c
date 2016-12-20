@@ -1,4 +1,4 @@
-#include <linux/i2c-dev-user.h>      //Changed to i2c-dev-user.h when checking on ZedBoard
+#include <linux/i2c-dev.h>      //Changed to i2c-dev-user.h when checking on ZedBoard
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <fcntl.h>

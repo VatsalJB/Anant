@@ -1,18 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../Memory_management/mempool.h"
-#include "../US_FUNCTIONS/hwfunctions.h"
+#include "hwfunctions.h"
 #include <time.h>
 
 int main()
 {
-    init_pool(50);                      //memory pool instead of malloc().
-    char *finalstr = (char* ) alloc();
+    char *finalstr = (char* ) malloc(50);
     
     FILE *f = fopen("fullhk.txt", "a");
     if(f==NULL)
     {
-        printf("Not opened\n");
+        perror("Couldn't open file\n");
         exit(0);
     }
 
@@ -48,5 +46,5 @@ int main()
 	clear_gy521();
 	clear_gy80();
 
-    ret((void* ) finalstr, 140);
+    free(finalstr);
 }

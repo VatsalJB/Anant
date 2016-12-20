@@ -1,4 +1,4 @@
-#include <linux/i2c-dev-user.h>
+#include <linux/i2c-dev.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
