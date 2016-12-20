@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#include "HMC5883L.h"
 
 #define ADDRESS 0x1e
 

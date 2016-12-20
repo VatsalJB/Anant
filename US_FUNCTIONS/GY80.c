@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdint.h>
+#include "GY80.h"
 
 #define ADDR 0x77     //i2c adress for read for temp sensor
 

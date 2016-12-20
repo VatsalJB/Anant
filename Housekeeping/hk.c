@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "/home/smr/Anant/Memory_management/mempool.h"
-#include "/Anant/US_FUNCTIONS/hwfunctions.h"
+#include "../Memory_management/mempool.h"
+#include "../US_FUNCTIONS/hwfunctions.h"
 #include <time.h>
 
 int main()
@@ -9,7 +9,7 @@ int main()
     init_pool(50);                      //memory pool instead of malloc().
     char *finalstr = (char* ) alloc();
     
-    FILE *f = fopen("/home/smr/Anant/Housekeeping/fullhk.txt", "a");
+    FILE *f = fopen("fullhk.txt", "a");
     if(f==NULL)
     {
         printf("Not opened\n");
