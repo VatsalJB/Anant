@@ -10,5 +10,6 @@ float get_temp_gy521();
 float get_Wx();
 float get_Wy();
 float get_Wz();
+void clear_gy521();
 
 #endif

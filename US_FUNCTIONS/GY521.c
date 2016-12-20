@@ -6,8 +6,9 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include "GY521.h"
 
-#define addr 0x68
+#define ADDR 0x68
 
 static int file;
 static __s32 res;
@@ -23,19 +24,19 @@ void set_sleep_gy521(int flag)
 		uint8_t val8 = 0x01;     //write 0x00 if you want to set the internal 8MHz oscillator as CLK                                              
 		res = i2c_smbus_write_byte_data(file, reg, val8);
 		if(res<0) 
-			perror("Failed to wake it up\n");
-		else 
-			printf("Device is awake\n");
+			perror("Failed to wake it up");
+		/*else 
+			printf("Device is awake\n");*/
 	}
 	else      //set it to sleep
 	{
 		reg = 0x6B;
-		uint8_t val8 = 0x41;   //write 0x40 if you want to set the internal 8MHz oscillator as CLK                                             //
+		uint8_t val8 = 0x41;   //write 0x40 if you want to set the internal 8MHz oscillator as CLK                                             
 		res = i2c_smbus_write_byte_data(file, reg, val8);
 		if(res<0) 
-			perror("Failed to go to sleep\n");
-		else 
-			printf("In sleep mode\n");
+			perror("Failed to go to sleep");
+		/*else 
+			printf("In sleep mode\n");*/
 	}
 }
 
@@ -50,9 +51,9 @@ void init_gy521()
 		perror("File not opened");	
 		exit(1);
 	}
-	if(ioctl(file, I2C_SLAVE, addr)<0)
+	if(ioctl(file, I2C_SLAVE, ADDR)<0)
 	{
-		perror(":( Not able to access the device\n");
+		perror("Not able to access the device");
 		exit(EXIT_FAILURE);
 	}
 
@@ -60,10 +61,10 @@ void init_gy521()
 
 	res = i2c_smbus_write_byte_data(file, 0x1B, 0x00);
 	if(res<0)
-		perror("Failed to set gyro range\n");
+		perror("Failed to set gyro range");
 	res = i2c_smbus_write_byte_data(file, 0x1C, 0x00);
 	if(res<0)
-		perror("Failed to set the accelerometer range\n");
+		perror("Failed to set the accelerometer range");
 
 	set_sleep_gy521(0);  //this also sets the clock source to X-axis gyro reference which is slightly better than the internal 8MHz oscillator
 }
