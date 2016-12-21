@@ -14,4 +14,4 @@ hk : hk.c $(HWOBJS)
 
 .PHONY: clean
 clean:
-	rm $(HWOBJS) hk hk.o
+	rm $(HWOBJS) hk hk.o fullhk.txt

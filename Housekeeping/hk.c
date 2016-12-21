@@ -7,7 +7,7 @@ int main()
 {
     char *finalstr = (char* ) malloc(50);
     
-    FILE *f = fopen("fullhk.txt", "a");
+    FILE *f = fopen("../Housekeeping/fullhk.txt", "a");
     if(f==NULL)
     {
         perror("Couldn't open file\n");
