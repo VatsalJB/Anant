@@ -83,7 +83,7 @@ void hk(void)
     {
         printf("HK forked and execed with id %d\n", getpid());
         //sleep(5); //only for testing! 
-        if(execv("/home/smr/Anant/Housekeeping/hk", NULL)==-1)
+        if(execv("../Housekeeping/hk", NULL)==-1)
         {
             perror("HK error");
         }
@@ -114,7 +114,7 @@ void take_pic(void)     //child must block till the cam triggers a hardware inte
     {
         printf("TAKE_PIC forked and execed %d\n", getpid());
         //sleep(3);       //remove after tesing
-        if(execv("/home/smr/Anant/CAM/TAKE_PIC", NULL)==-1)
+        if(execv("../CAM/TAKE_PIC", NULL)==-1)
         {
             perror("TAKE_PIC error");
         }
@@ -140,7 +140,7 @@ void advbkn(void)
     {
         printf("ADVBKN forked and execed %d\n", getpid());
         //sleep(3);       //remove after tesing
-        if(execv("/home/smr/Anant/Transmit/transmitadv", NULL)==-1)
+        if(execv("../Transmit/transmitadv", NULL)==-1)
         {
             perror("ADVBBKN error");
         }
@@ -233,6 +233,7 @@ void iterate(void)
 
 int main()
 {    
+    printf("Hello this is CAM_MODE\n");
     struct sigaction handlr_struct;
     handlr_struct.sa_handler = child_terminate;
     handlr_struct.sa_flags = SA_RESTART|SA_NODEFER;

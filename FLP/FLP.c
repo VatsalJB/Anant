@@ -90,7 +90,7 @@ void hk(void)
     {
         printf("HK forked and execed with id %d\n", getpid());
         //sleep(2); //only for testing asynchronous operation! 
-        if(execv("/home/smr/Anant/Housekeeping/hk", NULL)==-1)
+        if(execv("../Housekeeping/hk", NULL)==-1)
         {
             perror("HK failed to exec");
         }
@@ -123,7 +123,7 @@ void advbkn(void)
     {
         printf("ADVBKN forked and execed %d\n", getpid());
         //sleep(3);       //remove after tesing
-        if(execv("/home/smr/Anant/Transmit/transmitadv", NULL)==-1)
+        if(execv("../Transmit/transmitadv", NULL)==-1)
         {
             perror("ADVBKN failed to exec");
         }
