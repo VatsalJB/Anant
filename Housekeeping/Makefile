@@ -14,4 +14,4 @@ $(HWDIR)HMC5883L.o : $(HWDIR)HMC5883L.c
 
 .PHONY: clean
 clean:
-	rm $(HWOBJS) hk
+	rm $(HWOBJS) hk hk.o
