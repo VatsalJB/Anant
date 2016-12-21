@@ -88,10 +88,12 @@ void init_magnetometer()
     if(file<0)
     {
         perror("File not opened");
+        exit(1);
     }
     if(ioctl(file, I2C_SLAVE, ADDRESS)<0)
     {
         perror("ioctl could not open file");
+        exit(1);
     }
     factor = 0.92;
     set_magnetometer_mode(0);
